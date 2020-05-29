@@ -2,18 +2,18 @@ La página inicia en el link "http://codd.ing.puc.cl/~grupo26/index.php?".
 Donde se puede seleccionar si buscar ONGS, o proyectos con los respectivos filtros.
 
 Busqueda de cualquier ONG 
-"http://codd.ing.puc.cl/~grupo26/consultas/mostrar_ongs.php"
+"localhost/consultas/mostrar_ongs.php"
 
 Busqueda de todos los proyectos
-"http://codd.ing.puc.cl/~grupo26/consultas/mostrar_proyectos.php"
+"localhost/consultas/mostrar_proyectos.php"
 
 
 Para hacer los Log in, se puede acceder desde la navbar
 Luego se puede hacer Log in de ONGS
-http://codd.ing.puc.cl/~grupo26/login/log_in_ong.php
+localhost/login/log_in_ong.php
 
 y Log in de Socios
-http://codd.ing.puc.cl/~grupo26/login/log_in_socio.php
+hlocalhost/login/log_in_socio.php
 
 Las credenciales para hacer log in son:
 ONG:
