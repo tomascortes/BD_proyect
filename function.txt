@@ -1,0 +1,119 @@
+﻿CREATE OR REPLACE FUNCTION movilizaciones_automaticas(nombre_ong_ text, nombre_comuna_ text, presupuesto_total integer) RETURNS void AS $$
+DECLARE
+	size integer;
+	presupuesto_ integer;
+	mid_inicial integer;
+	fecha_ date;
+	contenido_ varchar(30);
+	row record;
+BEGIN	
+	size = cantidad_proyectos_comuna(nombre_comuna_);
+	mid_inicial = max_mid_movilizaciones();
+	presupuesto_ = presupuesto_total / size;
+	FOR row IN (select distinct * from proyectos_comuna(nombre_comuna_))
+    	LOOP
+			mid_inicial = mid_inicial + 1;
+			IF (random() < 0.5) THEN
+				fecha_ = now() + ((interval '1' day) * 90);
+
+				INSERT INTO movilizaciones (presupuesto, mid, fecha)
+				VALUES (presupuesto_, mid_inicial, fecha_);
+
+				INSERT INTO marchas (mid, asistentes_estimados, lugar)
+				VALUES (mid_inicial, trunc(random() * 9900 + 100), nombre_comuna_);	
+			ELSE 
+				fecha_ = now();
+
+				INSERT INTO movilizaciones (presupuesto, mid, fecha)
+				VALUES (presupuesto_, mid_inicial, fecha_);
+				
+				IF EXISTS(SELECT nombre_proyecto FROM minas WHERE nombre_proyecto = row.proyecto) THEN
+						contenido_ = 'spam';
+				ELSIF EXISTS(SELECT nombre_proyecto FROM vertederos WHERE nombre_proyecto = row.proyecto) THEN
+					contenido_ = 'imagenes';
+				ELSE
+					contenido_ = 'video';
+				END IF;
+				INSERT INTO campañas_redes_sociales (mid, duración, contenido)
+				VALUES (mid_inicial, 90, contenido_);
+			END IF;
+			
+			INSERT INTO rechazan (nombre_proyecto, mid)
+			VALUES (row.proyecto, mid_inicial);
+
+			INSERT INTO organizan (nombre_ong, mid)
+			VALUES (nombre_ong_, mid_inicial);
+			
+    	END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION proyectos_comuna(nombre_comuna text)
+RETURNS TABLE (
+      proyecto text
+)
+AS $$
+BEGIN
+   RETURN QUERY SELECT
+      proyectos.nombre_proyecto
+   FROM
+      proyectos
+   WHERE
+      comuna ILIKE format('%%%s%%', nombre_comuna)
+   AND
+      proyectos.nombre_proyecto IN (select * from filtro_almacenado);
+END; $$
+
+LANGUAGE 'plpgsql';
+
+
+
+CREATE OR REPLACE FUNCTION cantidad_proyectos_comuna(nombre_comuna text)
+RETURNS TABLE (
+      cantidad integer
+)
+AS $$
+BEGIN
+   RETURN QUERY SELECT
+      COUNT(proyectos.nombre_proyecto)::integer
+   FROM
+      proyectos
+   WHERE
+      comuna ILIKE format('%%%s%%', nombre_comuna)
+   AND
+      proyectos.nombre_proyecto IN (select * from filtro_almacenado);
+END; $$
+
+LANGUAGE 'plpgsql';
+
+
+
+CREATE OR REPLACE FUNCTION max_mid_movilizaciones()
+RETURNS TABLE (
+      max_mid integer
+)
+AS $$
+BEGIN
+   RETURN QUERY SELECT MAX(mid) FROM movilizaciones;
+END; $$
+
+LANGUAGE 'plpgsql';
+
+
+
+select movilizaciones_automaticas('Ryan', 'tucapel', 55555);
+select movilizaciones_automaticas('Ryan', 'camarones', 55555);
+
+select * from movilizaciones where mid > 29997;
+select * from marchas where mid > 29997;
+select * from campañas_redes_sociales where mid > 29997;
+select * from rechazan where mid > 29997;
+select * from organizan where mid > 29997;
+
+delete from campañas_redes_sociales where mid > 29997;
+delete from rechazan where mid > 29997;
+delete from marchas where mid > 29997;
+delete from organizan where mid > 29997;
+delete from movilizaciones where mid > 29997;
+

@@ -1,0 +1,83 @@
+create or replace view asociaciones_vigentes as
+SELECT mov_sociales.mid,
+    mov_sociales.presupuesto,
+    mov_sociales.fecha,
+    mov_sociales."duración",
+    mov_sociales.contenido,
+    NULL::integer AS asistentes_estimados,
+    NULL::character varying AS lugar
+   FROM mov_sociales
+where mov_sociales.fecha >= CURRENT_DATE - interval '1' day * mov_sociales."duración"
+union
+SELECT mov_march.mid,
+    mov_march.presupuesto,
+    mov_march.fecha,
+    NULL::integer AS "duración",
+    NULL::character varying AS contenido,
+    mov_march.asistentes_estimados,
+    mov_march.lugar
+   FROM mov_march
+  WHERE mov_march.fecha >= CURRENT_DATE;
+select * from asociaciones_vigentes 
+;
+-----------------------------------------------------------------------------------
+
+create or replace view mov_march as
+SELECT movilizaciones.mid,
+movilizaciones.presupuesto,
+movilizaciones.fecha,
+marchas.asistentes_estimados,
+marchas.lugar
+FROM movilizaciones
+JOIN marchas USING (mid);
+
+-------------------------------------------------------------------------------------
+create or replace view asociaciones_vigentes as
+SELECT mov_sociales.mid,
+    mov_sociales.presupuesto, mov_sociales.fecha, 
+    mov_sociales."duración", mov_sociales.contenido,
+    NULL::integer AS asistentes_estimados, 
+    NULL::character varying AS lugar 
+    FROM mov_sociales WHERE 
+mov_sociales.fecha <= (CURRENT_DATE - '1 day'::interval day * mov_sociales."duración")
+UNION
+SELECT mov_march.mid, mov_march.presupuesto, mov_march.fecha,
+NULL::integer AS "duración", NULL::character varying AS contenido,
+mov_march.asistentes_estimados, mov_march.lugar 
+FROM mov_march WHERE mov_march.fecha <= CURRENT_DATE;
+
+------------------------------------------------------------------------------------
+SELECT asociaciones_vigentes.mid,
+rechazan_vigentes.nombre_proyecto,
+asociaciones_vigentes.presupuesto,
+asociaciones_vigentes.fecha,
+asociaciones_vigentes."duración",
+asociaciones_vigentes.contenido,
+asociaciones_vigentes.asistentes_estimados,
+asociaciones_vigentes.lugar
+FROM rechazan_vigentes RIGHT JOIN asociaciones_vigentes USING (mid);
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT mov_sociales.mid,
+mov_sociales.presupuesto, mov_sociales.fecha, 
+mov_sociales."duración", mov_sociales.contenido,
+NULL::integer AS asistentes_estimados, 
+NULL::character varying AS lugar 
+FROM mov_sociales WHERE 
+mov_sociales.fecha >= (CURRENT_DATE - '1 day' mov_sociales."duración")
+UNION
+SELECT mov_march.mid, mov_march.presupuesto, mov_march.fecha,
+NULL::integer AS "duración", NULL::character varying AS contenido,
+mov_march.asistentes_estimados, mov_march.lugar 
+FROM mov_march WHERE mov_march.fecha >= CURRENT_DATE;
